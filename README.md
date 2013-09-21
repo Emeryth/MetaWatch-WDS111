@@ -9,7 +9,12 @@ In order to develop the digital watch systems (WDS112, SW12) visit: https://gith
 
 Precompiled firmware in TI txt format available in Binaries/
 
+
 Changes so far:
--Minor fixes
--Added Polish day/month translation
--Added seconds display when displaying time and date
+---
+
+* Minor fixes
+
+* Added Polish day/month translation
+
+* Added seconds display when displaying time and date
