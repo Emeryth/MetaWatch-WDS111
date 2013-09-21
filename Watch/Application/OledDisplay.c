@@ -105,6 +105,8 @@ static void BuildOledScreenSendToDisplay(void);
 
 unsigned int DisplayTimeoutInSeconds;
   
+unsigned int TimeAndDateCountdown = 0;
+
 static tImageBuffer* pBuildBuffer;
 static unsigned char BuildRow;
 static unsigned char BuildColumn;
@@ -277,6 +279,7 @@ void InitializeDisplayTask(void)
   InitializeModeTimeouts();
   InitializeTimeFormat();
   InitializeDateFormat();
+  InitializeLanguage();
   InitializeLinkAlarmEnable();
   InitializeMenuPage();
   SetFont(MetaWatch16Oled);
@@ -362,6 +365,7 @@ static void DisplayQueueMessageHandler(tMessage* pMsg)
 {
   eMessageType Type = (eMessageType)pMsg->Type;
   
+
   switch(Type)
   {
   case OledWriteBufferMsg:
@@ -1289,7 +1293,7 @@ static void NormalIdleScreenButtonConfiguration(void)
                          SW_A_INDEX,
                          BUTTON_STATE_IMMEDIATE,
                          WatchStatusMsg,
-                         NO_MSG_OPTIONS);
+                         1);//to note that button was pressed
     
   DefineButtonAction(NORMAL_IDLE_SCREEN_BUTTON_MODE,
                          SW_B_INDEX,
@@ -1387,13 +1391,19 @@ static void WatchStatusHandler(tMessage* pMsg)
    *
    * keep track of the last menu that was used
    */
-  if (   TopDisplayOn 
+
+  if (pMsg->Options==0){
+
+  }
+
+  else  if (   TopDisplayOn
       && CurrentButtonConfiguration == IdleButtonMode )
   {
-    WatchStatusIndex++;  
+	  TimeAndDateCountdown=0;
+    WatchStatusIndex++;
     if ( WatchStatusIndex >= WATCH_STATUS_TOTAL_PAGES )
     {
-      WatchStatusIndex = 0;  
+      WatchStatusIndex = 0;
     }
   }
 
@@ -1404,6 +1414,8 @@ static void WatchStatusHandler(tMessage* pMsg)
     WatchStatusIndex++;  
   }
   
+
+
   switch (WatchStatusIndex)  
   {
   case WATCH_STATUS_DATE_TIME_FACE:
@@ -1433,6 +1445,13 @@ static void WatchStatusHandler(tMessage* pMsg)
 /* display timeout */
 static void WatchDrawnScreenTimeoutHandler(tMessage* pMsg)
 {
+ if (TimeAndDateCountdown>0){
+	  tMessage Msg;
+	  SetupMessage(&Msg, WatchStatusMsg, 0);
+	  RouteMsg(&Msg);
+ }
+ else{
+
   TurnDisplayOff(TopOled);
   TurnDisplayOff(BottomOled);
    
@@ -1455,7 +1474,7 @@ static void WatchDrawnScreenTimeoutHandler(tMessage* pMsg)
     }
   }
   
-  
+ }
 }
 
 #if 0
@@ -1512,23 +1531,36 @@ static void DisplayVersionsFace(void)
 
 static void DisplayDateAndTimeFace(void)
 {
+
+  if (TimeAndDateCountdown==0)
+		TimeAndDateCountdown=5;
+
   StartBuildingOledScreen(TopOled);
   SetFont(MetaWatch16Oled);
-  BuildColumn = 15;
-  BuildOledScreenAddString((tString*)DaysOfTheWeek[RTCDOW]);
+  BuildColumn = 10;
+  tString *dayOfTheWeek=(tString*)DaysOfTheWeek[GetLanguage()][RTCDOW];
+  BuildOledScreenAddString(dayOfTheWeek);
   BuildOledScreenAddCharacter(' ');
   
   /* determine if month or day is displayed first */
   if ( GetDateFormat() == MONTH_FIRST )
   {
+	if (RTCMON<10)
+		BuildOledScreenAddCharacter('0');
     BuildOledScreenAddInteger(RTCMON);
     BuildOledScreenAddCharacter('/');
+    if (RTCDAY<10)
+    		BuildOledScreenAddCharacter('0');
     BuildOledScreenAddInteger(RTCDAY);
   }
   else
   {
+	if (RTCDAY<10)
+	      BuildOledScreenAddCharacter('0');
     BuildOledScreenAddInteger(RTCDAY);
     BuildOledScreenAddCharacter('/');
+    if (RTCMON<10)
+    		BuildOledScreenAddCharacter('0');
     BuildOledScreenAddInteger(RTCMON);
   }
   
@@ -1538,7 +1570,7 @@ static void DisplayDateAndTimeFace(void)
     
   SetFont(MetaWatch16Oled);
   StartBuildingOledScreen(BottomOled);
-  BuildColumn = 25;
+  BuildColumn = 15;
   
   /* display hour */
   int Hour = RTCHOUR;
@@ -1559,16 +1591,21 @@ static void DisplayDateAndTimeFace(void)
   BuildOledScreenAddCharacter(':');
   
   /* check to see if the minutes need to be padded */
-  int Minutes = RTCMIN;
-  if ( Minutes < 10 )
-  {
-    BuildOledScreenAddCharacter('0');
-  }
-  BuildOledScreenAddInteger(RTCMIN);
-  
-#if 0
-  BuildOledScreenAddCharacter(':');
-  BuildOledScreenAddInteger(RTCSEC);
+	int Minutes = RTCMIN;
+	if (Minutes < 10) {
+		BuildOledScreenAddCharacter('0');
+	}
+	BuildOledScreenAddInteger(RTCMIN);
+
+#if 1
+	BuildOledScreenAddCharacter(':');
+
+	//int Seconds = RTCSEC;
+	if (RTCSEC < 10) {
+		BuildOledScreenAddCharacter('0');
+	}
+	BuildOledScreenAddInteger(RTCSEC);
+
 #endif
   
   /* display am/pm if in 12 hour mode */
@@ -1588,10 +1625,10 @@ static void DisplayDateAndTimeFace(void)
     
   }
   
-  
+  BuildOledScreenChangeDisplayTimeout(1);
   BuildOledScreenSendToDisplay();  
   
-  
+  TimeAndDateCountdown--;
 }
 
 static void DisplayConnectionStatusFace(void)

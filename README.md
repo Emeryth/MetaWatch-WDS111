@@ -6,3 +6,10 @@ This is the repository for the embedded watch source for Bluetooth 2.1 and 4.0 f
 
 Please only use for analog watch development.
 In order to develop the digital watch systems (WDS112, SW12) visit: https://github.com/MetaWatchOpenProjects/MetaWatch-Gen2
+
+Precompiled firmware in TI txt format available in Binaries/
+
+Changes so far:
+-Minor fixes
+-Added Polish day/month translation
+-Added seconds display when displaying time and date

@@ -128,6 +128,7 @@ extern const tString MonthsOfYear[][13][7];
 #define LANG_EN (0)
 #define LANG_FI (1)
 #define LANG_DE (2)
+#define LANG_PL (3)
 
 /*! Initaliaze the non-volatile item that holds the time format (which is 12 or
  * 24 hour )
@@ -139,7 +140,7 @@ void InitializeTimeFormat(void);
 */
 void InitializeDateFormat(void);
 
-void InitaliazeLanguage(void);
+void InitializeLanguage(void);
 
 /*! \return Time Format TWELVE_HOUR = 0, TWENTY_FOUR_HOUR = 1 */
 unsigned char GetTimeFormat(void);

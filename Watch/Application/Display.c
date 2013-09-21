@@ -118,21 +118,24 @@ unsigned char OnceConnected(void)
  * these are setup to match RTC 
  * days of week are 0-6 and months are 1-12 
  */
-const tString DaysOfTheWeek[3][7][4] =
+const tString DaysOfTheWeek[4][7][4] =
 {
   {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"},
   {"su", "ma", "ti", "ke", "to", "pe", "la"},
-  {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"}
+  {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"},
+  {"Nie","Pon", "Wto", "Sro", "Czw", "Pia", "Sob"}
 };
 
-const tString MonthsOfYear[3][13][7] =
+const tString MonthsOfYear[4][13][7] =
 {
   {"???","Jan","Feb","Mar","Apr","May","June",
   "July","Aug","Sep","Oct","Nov","Dec"},
   {"???","tami", "helmi", "maalis", "huhti", "touko", "kesä",
    "heinä", "elo", "syys", "loka", "marras", "joulu"},
   {"???","Jan","Feb","Mar","Apr","Mai","Jun",
-   "Jul","Aug","Sep","Okt","Nov","Dez"}
+   "Jul","Aug","Sep","Okt","Nov","Dez"},
+   {"???","Sty","Lut","Mar","Kwi","Maj","Cze",
+    "Lip","Sie","Wrz","Paz","Lis","Gru"},
 };
 
 /******************************************************************************/
@@ -143,13 +146,13 @@ static unsigned char nvLanguage;
 
 void InitializeTimeFormat(void)
 {
-  nvTimeFormat = TWELVE_HOUR;
+  nvTimeFormat = TWENTY_FOUR_HOUR;
   OsalNvItemInit(NVID_TIME_FORMAT, sizeof(nvTimeFormat), &nvTimeFormat);
 }
 
 void InitializeDateFormat(void)
 {
-  nvDateFormat = MONTH_FIRST;
+  nvDateFormat = DAY_FIRST;
   OsalNvItemInit(NVID_DATE_FORMAT, sizeof(nvDateFormat), &nvDateFormat);
 }
 
