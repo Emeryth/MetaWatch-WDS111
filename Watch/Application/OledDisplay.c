@@ -1629,6 +1629,7 @@ static void DisplayDateAndTimeFace(void)
   BuildOledScreenSendToDisplay();  
   
   TimeAndDateCountdown--;
+  BuildOledScreenChangeDisplayTimeout(5);
 }
 
 static void DisplayConnectionStatusFace(void)
